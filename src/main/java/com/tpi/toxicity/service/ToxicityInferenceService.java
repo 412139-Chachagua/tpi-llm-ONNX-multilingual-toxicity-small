@@ -1,6 +1,7 @@
 package com.tpi.toxicity.service;
 
 import com.tpi.toxicity.model.InferenceException;
+import com.tpi.toxicity.model.InvalidTextException;
 import com.tpi.toxicity.model.OnnxToxicityModel;
 import com.tpi.toxicity.model.ServiceSaturatedException;
 import com.tpi.toxicity.model.ToxicityCategory;
@@ -28,7 +29,7 @@ public class ToxicityInferenceService {
     /** Probabilidad (sigmoide independiente por etiqueta) para cada categoría. */
     public Map<ToxicityCategory, Double> classify(String text) {
         if (text == null || text.isBlank()) {
-            throw new IllegalArgumentException("El texto no puede estar vacío");
+            throw new InvalidTextException("El texto no puede estar vacío");
         }
         boolean acquired = false;
         try {

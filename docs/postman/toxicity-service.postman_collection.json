@@ -1,0 +1,844 @@
+{
+  "info": {
+    "name": "Toxicity Inference Service",
+    "description": "Contrato real en docs/api.md. Variables: baseUrl y apiKey (ver environment). Las aserciones de toxicidad solo comparan contra los ejemplos observados con el modelo real (umbrales amplios).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Liveness",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 UP\", () => { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql(\"UP\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/live",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "live"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Readiness",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 UP (modelo cargado)\", () => { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql(\"UP\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "ready"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clasificación (éxito)",
+      "item": [
+        {
+          "name": "Texto benigno (EN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"multilingual-toxicity-small\"));",
+                  "pm.test(\"7 categorías en orden\", () => pm.expect(Object.keys(j.scores)).to.eql([\"toxicity\", \"severe_toxicity\", \"obscene\", \"threat\", \"insult\", \"identity_attack\", \"sexual_explicit\"]));",
+                  "pm.test(\"valores finitos en [0,1]\", () => Object.values(j.scores).forEach(v => pm.expect(v).to.be.within(0, 1)));",
+                  "pm.test(\"toxicity baja\", () => pm.expect(j.scores.toxicity).to.be.below(0.3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Thanks for sharing, this was really helpful!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Texto ofensivo (EN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"multilingual-toxicity-small\"));",
+                  "pm.test(\"7 categorías en orden\", () => pm.expect(Object.keys(j.scores)).to.eql([\"toxicity\", \"severe_toxicity\", \"obscene\", \"threat\", \"insult\", \"identity_attack\", \"sexual_explicit\"]));",
+                  "pm.test(\"valores finitos en [0,1]\", () => Object.values(j.scores).forEach(v => pm.expect(v).to.be.within(0, 1)));",
+                  "pm.test(\"toxicity e insult altos\", () => { pm.expect(j.scores.toxicity).to.be.above(0.5); pm.expect(j.scores.insult).to.be.above(0.5); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"You are a complete idiot and nobody wants you here.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Texto ofensivo (ES)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"multilingual-toxicity-small\"));",
+                  "pm.test(\"7 categorías en orden\", () => pm.expect(Object.keys(j.scores)).to.eql([\"toxicity\", \"severe_toxicity\", \"obscene\", \"threat\", \"insult\", \"identity_attack\", \"sexual_explicit\"]));",
+                  "pm.test(\"valores finitos en [0,1]\", () => Object.values(j.scores).forEach(v => pm.expect(v).to.be.within(0, 1)));",
+                  "pm.test(\"toxicity alta\", () => pm.expect(j.scores.toxicity).to.be.above(0.4));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Eres un inútil, lárgate de aquí.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Amenaza",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"multilingual-toxicity-small\"));",
+                  "pm.test(\"7 categorías en orden\", () => pm.expect(Object.keys(j.scores)).to.eql([\"toxicity\", \"severe_toxicity\", \"obscene\", \"threat\", \"insult\", \"identity_attack\", \"sexual_explicit\"]));",
+                  "pm.test(\"valores finitos en [0,1]\", () => Object.values(j.scores).forEach(v => pm.expect(v).to.be.within(0, 1)));",
+                  "pm.test(\"threat es la categoría específica más alta\", () => pm.expect(j.scores.threat).to.be.above(j.scores.insult));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"I will find you and hurt you.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Acentos y emojis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"multilingual-toxicity-small\"));",
+                  "pm.test(\"7 categorías en orden\", () => pm.expect(Object.keys(j.scores)).to.eql([\"toxicity\", \"severe_toxicity\", \"obscene\", \"threat\", \"insult\", \"identity_attack\", \"sexual_explicit\"]));",
+                  "pm.test(\"valores finitos en [0,1]\", () => Object.values(j.scores).forEach(v => pm.expect(v).to.be.within(0, 1)));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Canción pingüino ñandú 😀🎉\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errores",
+      "item": [
+        {
+          "name": "Sin API key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"error = unauthorized\", () => pm.expect(pm.response.json().error).to.eql(\"unauthorized\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"hola\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "API key incorrecta (cambiar header a mano)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"error = unauthorized\", () => pm.expect(pm.response.json().error).to.eql(\"unauthorized\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "clave-incorrecta"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"hola\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Body ausente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error = invalid_request\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_request\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "JSON inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error = invalid_request\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_request\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\":"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Texto vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error = invalid_request\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_request\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Texto solo espacios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error = invalid_request\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_request\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"   \"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "text numérico (no string)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error = invalid_request\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_request\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\":123}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "text es un objeto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error = invalid_request\", () => pm.expect(pm.response.json().error).to.eql(\"invalid_request\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\":{\"a\":1}}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Content-Type incorrecto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 415\", () => pm.response.to.have.status(415));",
+                  "pm.test(\"error = unsupported_media_type\", () => pm.expect(pm.response.json().error).to.eql(\"unsupported_media_type\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/plain"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "hola"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Texto demasiado largo (5001 caracteres)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 413\", () => pm.response.to.have.status(413));",
+                  "pm.test(\"error = text_too_long\", () => pm.expect(pm.response.json().error).to.eql(\"text_too_long\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Método no permitido (GET classify)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 405\", () => pm.response.to.have.status(405));",
+                  "pm.test(\"error = method_not_allowed\", () => pm.expect(pm.response.json().error).to.eql(\"method_not_allowed\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ruta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"error = not_found\", () => pm.expect(pm.response.json().error).to.eql(\"not_found\"));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/nada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nada"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": []
+}

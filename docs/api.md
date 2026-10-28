@@ -3,7 +3,7 @@
 Todos los cuerpos son JSON (`Content-Type: application/json`). Los errores nunca incluyen trazas, rutas ni el texto enviado.
 
 ## `POST /api/v1/toxicity/classify`
-Petición: `{"text": "..."}` — obligatorio, no vacío, máximo `TOXICITY_MAX_CHARS` caracteres (5000 por defecto).
+Petición: `{"text": "..."}` — obligatorio, **debe ser un string JSON** (un número, booleano, arreglo u objeto devuelve 400), no vacío, máximo `TOXICITY_MAX_CHARS` caracteres (5000 por defecto).
 El texto se trunca a 256 tokens al tokenizar (el resto no influye en el resultado).
 
 ```bash
@@ -46,3 +46,6 @@ Si el modelo no puede cargarse, la aplicación no arranca (no llega a atender pe
 - Limitación conocida: ese timeout cubre la espera por capacidad, **no** interrumpe una inferencia ya iniciada (una inferencia de
   ≤256 tokens dura milisegundos a decenas de ms en CPU; se medirá en la Fase 6).
 - El texto analizado, la API key y las cabeceras no se registran (cubierto por test).
+
+## Postman
+Colección y entorno importables en [postman/](postman/). Definir `apiKey` en el entorno (`baseUrl` por defecto: `http://localhost:8080`).
