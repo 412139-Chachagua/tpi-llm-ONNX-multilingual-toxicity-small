@@ -4,7 +4,7 @@ Mini servicio independiente de inferencia de toxicidad: ejecuta el modelo
 `Horizon-Labs/multilingual-toxicity-small` con ONNX Runtime desde Java/Spring Boot.
 No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuaciones.
 
-> Estado: Fases 1–6 (proyecto, modelo, inferencia real, API REST, seguridad, pruebas y Docker). Contrato en [docs/api.md](docs/api.md).
+> Estado: Fases 1–7 (proyecto, modelo, inferencia real, API REST, seguridad, pruebas, Docker y preparación de despliegue). Contrato en [docs/api.md](docs/api.md).
 
 ## Requisitos
 - JDK 21
@@ -48,3 +48,6 @@ docker run --rm -v "$PWD":/app -v toxicity-m2:/root/.m2 -w /app maven:3.9-eclips
 
 ## Docker
 Ver [docs/docker.md](docs/docker.md) (construcción, ejecución, mediciones y fallos verificados).
+
+## Despliegue
+Preparación y pendientes para Azure Container Apps (sin desplegar): [docs/deployment.md](docs/deployment.md).
