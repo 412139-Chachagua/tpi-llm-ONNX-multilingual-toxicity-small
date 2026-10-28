@@ -4,7 +4,7 @@ Mini servicio independiente de inferencia de toxicidad: ejecuta el modelo
 `Horizon-Labs/multilingual-toxicity-small` con ONNX Runtime desde Java/Spring Boot.
 No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuaciones.
 
-> Estado: Fases 1–5 (proyecto, modelo, inferencia real, API REST, seguridad y pruebas). Contrato en [docs/api.md](docs/api.md).
+> Estado: Fases 1–6 (proyecto, modelo, inferencia real, API REST, seguridad, pruebas y Docker). Contrato en [docs/api.md](docs/api.md).
 
 ## Requisitos
 - JDK 21
@@ -45,3 +45,6 @@ docker run --rm -v "$PWD":/app -v toxicity-m2:/root/.m2 -w /app maven:3.9-eclips
 - Con modelo real (arranque completo, línea base de regresión, concurrencia): ver sección anterior. La línea base
   `src/test/resources/reference-scores.json` es una **línea de regresión generada con este mismo modelo**, no una referencia
   independiente (p. ej. PyTorch); se regenera con `-Dupdate.reference=true`.
+
+## Docker
+Ver [docs/docker.md](docs/docker.md) (construcción, ejecución, mediciones y fallos verificados).
