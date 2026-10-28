@@ -1,7 +1,5 @@
 server:
   port: ${PORT:8080}
-  tomcat:
-    max-http-form-post-size: 64KB
 spring:
   application:
     name: toxicity-inference-service
@@ -14,7 +12,7 @@ toxicity:
   max-tokens: ${TOXICITY_MAX_TOKENS:256}
   model-path: ${TOXICITY_MODEL_PATH:models/onnx/model.onnx}
   tokenizer-path: ${TOXICITY_TOKENIZER_PATH:models/tokenizer.json}
-  # Límites provisionales; se ajustan con mediciones en las fases 3 y 5.
+  # Límites provisionales: aún no se ajustaron con mediciones en el entorno de despliegue (ver docs/deployment.md).
   max-chars: ${TOXICITY_MAX_CHARS:5000}
   max-concurrent-inferences: ${TOXICITY_MAX_CONCURRENT:4}
   inference-timeout: ${TOXICITY_INFERENCE_TIMEOUT:10s}

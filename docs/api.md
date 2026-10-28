@@ -39,8 +39,7 @@ Si el modelo no puede cargarse, la aplicación no arranca (no llega a atender pe
 - `/api/**` exige la cabecera `X-API-Key` con el valor de `TOXICITY_API_KEY` (comparación en tiempo constante). Sin ella: 401
   `{"error":"unauthorized",...}`. `/health/*` no requiere clave.
 - Sin `TOXICITY_API_KEY` la aplicación **no arranca**, salvo `TOXICITY_AUTH_DISABLED=true` (solo desarrollo local).
-- Cuerpo máximo: `TOXICITY_MAX_CHARS × 6 + 1024` bytes (peor caso JSON escapado); más → 413 (por `Content-Length`) o lectura abortada
-  (cuerpos chunked).
+- Cuerpo máximo: `TOXICITY_MAX_CHARS × 6 + 1024` bytes (peor caso JSON escapado); más → 413, tanto si se declara `Content-Length` como si el cuerpo es chunked y se supera durante la lectura.
 - Concurrencia: máximo `TOXICITY_MAX_CONCURRENT` inferencias simultáneas; una petición espera hasta `TOXICITY_INFERENCE_TIMEOUT`
   por capacidad y, si no la obtiene, recibe 503 `service_busy`.
 - Limitación conocida: ese timeout cubre la espera por capacidad, **no** interrumpe una inferencia ya iniciada (una inferencia de

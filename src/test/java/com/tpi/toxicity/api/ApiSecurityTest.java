@@ -78,6 +78,30 @@ class ApiSecurityTest {
     }
 
     @Test
+    void streamedBodyOverLimitIsAlso413WithoutDeclaredLength() throws Exception {
+        // sin Content-Length declarado el filtro corta durante la lectura
+        byte[] big = ("{\"text\":\"" + "a".repeat(5000) + "\"}").getBytes();
+        mvc.perform(post(URL).header("X-API-Key", "s3cret-key").contentType(MediaType.APPLICATION_JSON)
+                        .with(req -> {
+                            req.setContent(big);
+                            req.removeHeader("Content-Length");
+                            return req;
+                        }))
+                .andExpect(status().isPayloadTooLarge())
+                .andExpect(jsonPath("$.message").value("request body too large"));
+        verify(service, never()).classify(anyString());
+    }
+
+    @Test
+    void inferenceFailureLogsCauseButNotTheText(CapturedOutput output) throws Exception {
+        when(service.classify(anyString())).thenThrow(
+                new com.tpi.toxicity.model.InferenceException("Falló la inferencia", new RuntimeException("onnx-session-failure")));
+        mvc.perform(post(URL).header("X-API-Key", "s3cret-key").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"text\":\"texto-privado-abc\"}")).andExpect(status().isInternalServerError());
+        assertThat(output.getAll()).contains("onnx-session-failure").doesNotContain("texto-privado-abc");
+    }
+
+    @Test
     void textAndKeyAreNeverLogged(CapturedOutput output) throws Exception {
         when(service.classify(anyString())).thenThrow(new RuntimeException("fallo"));
         mvc.perform(post(URL).header("X-API-Key", "s3cret-key").contentType(MediaType.APPLICATION_JSON)
