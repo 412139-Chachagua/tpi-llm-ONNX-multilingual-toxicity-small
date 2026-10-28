@@ -19,8 +19,8 @@
 
     <properties>
         <java.version>21</java.version>
-        <!-- Versión a confirmar contra el modelo real en la Fase 3 -->
-        <onnxruntime.version>1.31.1</onnxruntime.version>
+        <!-- 1.23.0 es la última con nativos osx-x64 (Mac Intel); desde 1.25 solo osx-aarch64/linux/win -->
+        <onnxruntime.version>1.23.0</onnxruntime.version>
     </properties>
 
     <dependencies>
