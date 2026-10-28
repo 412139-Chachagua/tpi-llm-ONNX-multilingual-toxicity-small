@@ -40,9 +40,9 @@ class ToxicityInferenceServiceTest {
     @Test
     void rejectsBlankText() {
         ToxicityInferenceService service = service(mock(OnnxToxicityModel.class));
-        assertThatThrownBy(() -> service.classify("")).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> service.classify("   ")).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> service.classify(null)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> service.classify("")).isInstanceOf(com.tpi.toxicity.model.InvalidTextException.class);
+        assertThatThrownBy(() -> service.classify("   ")).isInstanceOf(com.tpi.toxicity.model.InvalidTextException.class);
+        assertThatThrownBy(() -> service.classify(null)).isInstanceOf(com.tpi.toxicity.model.InvalidTextException.class);
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.tpi.toxicity.api;
 
 import com.tpi.toxicity.dto.ErrorResponse;
 import com.tpi.toxicity.model.InferenceException;
+import com.tpi.toxicity.model.InvalidTextException;
 import com.tpi.toxicity.model.ServiceSaturatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,13 @@ public class ApiExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "invalid_request", "text is required and must not be blank");
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, IllegalArgumentException.class})
+    @ExceptionHandler({HttpMessageNotReadableException.class, InvalidTextException.class})
     ResponseEntity<ErrorResponse> unreadable(Exception e) {
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            if (t instanceof RequestBodyTooLargeException) {
+                return build(HttpStatus.PAYLOAD_TOO_LARGE, "text_too_long", "request body too large");
+            }
+        }
         return build(HttpStatus.BAD_REQUEST, "invalid_request", "request body is missing or malformed");
     }
 
@@ -58,7 +64,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(InferenceException.class)
     ResponseEntity<ErrorResponse> inference(InferenceException e) {
-        log.error("Inference failed: {}", e.getMessage());
+        log.error("Inference failed: {} (cause: {})", e.getMessage(), e.getCause());
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "inference_failed", "inference failed");
     }
 

@@ -98,7 +98,7 @@ public class ApiKeyAndSizeFilter extends OncePerRequestFilter {
                 public int read() throws IOException {
                     int b = in.read();
                     if (b >= 0 && ++read > limit) {
-                        throw new IOException("request body too large");
+                        throw new RequestBodyTooLargeException();
                     }
                     return b;
                 }
@@ -107,7 +107,7 @@ public class ApiKeyAndSizeFilter extends OncePerRequestFilter {
                 public int read(byte[] buf, int off, int len) throws IOException {
                     int n = in.read(buf, off, len);
                     if (n > 0 && (read += n) > limit) {
-                        throw new IOException("request body too large");
+                        throw new RequestBodyTooLargeException();
                     }
                     return n;
                 }

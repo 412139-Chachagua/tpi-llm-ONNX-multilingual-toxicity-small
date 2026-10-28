@@ -1,5 +1,8 @@
 # Preparación para despliegue en Azure Container Apps
 
+> **Actualización:** región elegida `chilecentral` (única permitida cercana por la política de la suscripción), modelo incluido en la imagen
+> con `Dockerfile.azure`; los pasos concretos están en [azure-runbook.md](azure-runbook.md).
+>
 > **Nada de esto se ha ejecutado.** No se crearon recursos, no se publicó ninguna imagen y no se estimaron costos.
 > Este documento reúne las decisiones y los pasos pendientes (Fase 7 del plan) a partir de lo medido localmente.
 

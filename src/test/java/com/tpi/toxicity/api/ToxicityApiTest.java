@@ -64,11 +64,27 @@ class ToxicityApiTest {
     @Test
     void invalidBodiesReturn400() throws Exception {
         for (String body : new String[]{"{}", "{\"text\":\"\"}", "{\"text\":\"   \"}", "{\"text\":null}",
-                "{\"text\":5", "not json", ""}) {
+                "{\"text\":5", "not json", "",
+                "{\"text\":123}", "{\"text\":true}", "{\"text\":1.5}", "{\"text\":[\"a\"]}", "{\"text\":{\"a\":1}}"}) {
             mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(body))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"));
         }
+    }
+
+    @Test
+    void unexpectedIllegalArgumentIsAnInternalErrorNotAClientError() throws Exception {
+        org.mockito.Mockito.doThrow(new IllegalArgumentException("bug interno")).when(service).classify(anyString());
+        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content("{\"text\":\"x\"}"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("internal_error"));
+    }
+
+    @Test
+    void invalidTextFromServiceIsA400() throws Exception {
+        org.mockito.Mockito.doThrow(new com.tpi.toxicity.model.InvalidTextException("x")).when(service).classify(anyString());
+        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content("{\"text\":\"x\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

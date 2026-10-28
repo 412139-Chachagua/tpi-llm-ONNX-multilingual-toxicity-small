@@ -17,7 +17,11 @@
 Existe además `onnx/model_quantized.onnx` (int8, 268 MB, sha256 `44d470dc…f0080`); el model card indica una diferencia media de
 0.0009 en probabilidad. **No descargado**: decisión pendiente (ver abajo).
 
-Descarga: `https://huggingface.co/Horizon-Labs/multilingual-toxicity-small/resolve/<revisión>/<archivo>` en `models/` (ignorado por git).
+Descarga reproducible con verificación de SHA-256 (idempotente, ignora archivos ya correctos):
+```bash
+scripts/download-model.sh [directorio]   # por defecto: models/ (ignorado por git)
+```
+Los hashes y la revisión están fijados en el propio script, que debe mantenerse sincronizado con esta tabla.
 
 ## Interfaz ONNX (inspeccionada con ONNX Runtime 1.23.0)
 | Tensor | Dirección | Tipo | Forma |

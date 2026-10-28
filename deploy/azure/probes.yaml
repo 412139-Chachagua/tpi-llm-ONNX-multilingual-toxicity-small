@@ -1,0 +1,41 @@
+# Para `az containerapp update --yaml` (NO ejecutada ni validada contra Azure).
+# Reemplaza la definición del contenedor: por eso repite imagen y variable de entorno (el secreto `api-key` ya debe existir en la app).
+properties:
+  template:
+    containers:
+      - name: tpi-llm-toxicity
+        image: tpillmtoxicity.azurecr.io/toxicity-service:1.0.0
+        env:
+          - name: TOXICITY_API_KEY
+            secretRef: api-key
+        resources:
+          cpu: 1.0
+          memory: 2Gi
+        probes:
+          # La carga del modelo tarda ~15-26 s en local; hasta ~120 s de margen antes de reiniciar.
+          - type: Startup
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 10
+            timeoutSeconds: 3
+          - type: Readiness
+            httpGet:
+              path: /health/ready
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 3
+          # Liveness no depende del modelo: solo comprueba que el proceso responde.
+          - type: Liveness
+            httpGet:
+              path: /health/live
+              port: 8080
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 3
+    scale:
+      minReplicas: 0
+      maxReplicas: 1

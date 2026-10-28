@@ -6,6 +6,9 @@ No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuacione
 
 > Estado: Fases 1–7 (proyecto, modelo, inferencia real, API REST, seguridad, pruebas, Docker y preparación de despliegue). Contrato en [docs/api.md](docs/api.md).
 
+## Modelo
+`scripts/download-model.sh` descarga y verifica los artefactos en `models/` (detalles en [docs/model.md](docs/model.md)).
+
 ## Requisitos
 - JDK 21
 - Maven 3.9+
@@ -14,7 +17,7 @@ No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuacione
 ## Comandos
 ```bash
 mvn verify                      # compila y ejecuta los tests
-TOXICITY_API_KEY=cambia-esto mvn spring-boot:run   # puerto 8080 (requiere los artefactos de models/)
+TOXICITY_API_KEY=cambia-esto mvn spring-boot:run   # puerto 8080 (requiere los artefactos de models/; ver sección Modelo)
 ```
 
 ### Tests con el modelo real
