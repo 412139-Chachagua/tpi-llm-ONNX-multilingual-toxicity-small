@@ -10,6 +10,7 @@ import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.TensorInfo;
 import ai.onnxruntime.OnnxJavaType;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -31,7 +32,9 @@ public class OnnxToxicityModel implements DisposableBean {
     private final OrtEnvironment env;
     private final OrtSession session;
     private final HuggingFaceTokenizer tokenizer;
+    private volatile boolean ready;
 
+    @Autowired
     public OnnxToxicityModel(ToxicityProperties props) {
         this(props.modelPath(), props.tokenizerPath(), props.maxTokens());
     }
@@ -61,6 +64,7 @@ public class OnnxToxicityModel implements DisposableBean {
         }
         this.session = sess;
         this.tokenizer = tok;
+        this.ready = true;
     }
 
     /** Devuelve los 7 logits crudos del modelo para el texto dado. */
@@ -80,6 +84,11 @@ public class OnnxToxicityModel implements DisposableBean {
         } catch (OrtException e) {
             throw new InferenceException("Falló la inferencia", e);
         }
+    }
+
+    /** true mientras la sesión esté cargada y utilizable. */
+    public boolean isReady() {
+        return ready;
     }
 
     public int tokenCount(String text) {
@@ -122,6 +131,7 @@ public class OnnxToxicityModel implements DisposableBean {
 
     @Override
     public void destroy() throws OrtException {
+        ready = false;
         session.close();
         tokenizer.close();
     }

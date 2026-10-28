@@ -2,6 +2,7 @@ package com.tpi.toxicity.service;
 
 import com.tpi.toxicity.model.InferenceException;
 import com.tpi.toxicity.model.OnnxToxicityModel;
+import com.tpi.toxicity.model.ServiceSaturatedException;
 import com.tpi.toxicity.model.ToxicityCategory;
 import com.tpi.toxicity.model.ToxicityProperties;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class ToxicityInferenceService {
         try {
             acquired = permits.tryAcquire(acquireTimeoutMillis, TimeUnit.MILLISECONDS);
             if (!acquired) {
-                throw new InferenceException("Servicio saturado");
+                throw new ServiceSaturatedException();
             }
             return toProbabilities(model.logits(text));
         } catch (InterruptedException e) {

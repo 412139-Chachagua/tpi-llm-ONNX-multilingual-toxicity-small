@@ -4,7 +4,7 @@ Mini servicio independiente de inferencia de toxicidad: ejecuta el modelo
 `Horizon-Labs/multilingual-toxicity-small` con ONNX Runtime desde Java/Spring Boot.
 No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuaciones.
 
-> Estado: **Fase 1** (proyecto base). Aún no hay modelo ni endpoints.
+> Estado: Fases 1–4 (proyecto, modelo, inferencia real y API REST). Contrato en [docs/api.md](docs/api.md).
 
 ## Requisitos
 - JDK 21
