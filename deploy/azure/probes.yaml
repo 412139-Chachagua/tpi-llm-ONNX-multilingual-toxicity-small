@@ -1,10 +1,13 @@
-# Plantilla para `az containerapp update --yaml` (NO ejecutada ni validada contra Azure).
-# Reemplazar <ACR> y la versión de la imagen antes de usar. Define recursos y sondas.
+# Para `az containerapp update --yaml` (NO ejecutada ni validada contra Azure).
+# Reemplaza la definición del contenedor: por eso repite imagen y variable de entorno (el secreto `api-key` ya debe existir en la app).
 properties:
   template:
     containers:
-      - name: toxicity-service
-        image: <ACR>.azurecr.io/toxicity-service:<VERSION>
+      - name: tpi-llm-toxicity
+        image: tpillmtoxicity.azurecr.io/toxicity-service:1.0.0
+        env:
+          - name: TOXICITY_API_KEY
+            secretRef: api-key
         resources:
           cpu: 1.0
           memory: 2Gi

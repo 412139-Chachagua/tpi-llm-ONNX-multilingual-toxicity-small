@@ -24,7 +24,7 @@ en Azure for Students, al agotarse el crédito la suscripción se deshabilita (s
 ## Pasos
 Variables sugeridas (el nombre del registro debe ser único globalmente, solo minúsculas y números):
 ```bash
-LOC=chilecentral; RG=rg-toxicity-chilecentral; ACR=<nombre-unico>; ENV=cae-toxicity; APP=toxicity-service; VER=1.0.0
+LOC=chilecentral; RG=rg-tpi-llm-toxicity; ACR=tpillmtoxicity; ENV=cae-tpi-llm-toxicity; APP=tpi-llm-toxicity; ID=id-tpi-llm-toxicity; VER=1.0.0
 ```
 
 ### A. Consulta (sin costo)
@@ -42,16 +42,16 @@ LOC=chilecentral; RG=rg-toxicity-chilecentral; ACR=<nombre-unico>; ENV=cae-toxic
 | 3 | `az acr create -n $ACR -g $RG -l $LOC --sku Basic` | Crea el registro (admin deshabilitado) | **Sí**, ~0,17 USD/día | `az acr show -n $ACR` |
 | 4 | Publicar la imagen (ver abajo) | Sube `toxicity-service:$VER` | Almacenamiento (10 GB incluidos en Basic) | `az acr repository show-tags -n $ACR --repository toxicity-service` |
 | 5 | `az containerapp env create -n $ENV -g $RG -l $LOC` | Crea el entorno (con Log Analytics por defecto) | Posible (logs; sin verificar) | `az containerapp env show -n $ENV -g $RG` |
-| 6 | `az containerapp create -n $APP -g $RG --environment $ENV --image $ACR.azurecr.io/toxicity-service:$VER --registry-server $ACR.azurecr.io --registry-identity system --target-port 8080 --ingress external --cpu 1.0 --memory 2.0Gi --min-replicas 0 --max-replicas 1 --secrets api-key=<VALOR> --env-vars TOXICITY_API_KEY=secretref:api-key` | Crea la app con la API key como secreto | **Sí** (consumo) | `az containerapp show -n $APP -g $RG --query properties.provisioningState` |
+| 5b | `az identity create -n $ID -g $RG -l $LOC` y `az role assignment create --assignee-object-id <principalId> --assignee-principal-type ServicePrincipal --role AcrPull --scope <id-del-ACR>` | Identidad para descargar la imagen con permiso AcrPull (la ayuda indica que el permiso debe existir **antes** de crear la app) | No | `az role assignment list --scope <id-del-ACR>` |
+| 6 | `az containerapp create -n $APP -g $RG --environment $ENV --image $ACR.azurecr.io/toxicity-service:$VER --user-assigned $ID_RES --registry-server $ACR.azurecr.io --registry-identity $ID_RES --target-port 8080 --ingress external --cpu 1.0 --memory 2.0Gi --min-replicas 0 --max-replicas 1 --secrets api-key=<VALOR> --env-vars TOXICITY_API_KEY=secretref:api-key` | Crea la app con la API key como secreto | **Sí** (consumo) | `az containerapp show -n $APP -g $RG --query properties.provisioningState` |
 | 7 | `az containerapp update -n $APP -g $RG --yaml deploy/azure/probes.yaml` | Aplica sondas (reemplazar `<ACR>` y `<VERSION>`) | No | `az containerapp show ... --query properties.template.containers[0].probes` |
 
 **Secreto:** generar la clave en el propio Cloud Shell (`openssl rand -base64 32`), guardarla en un gestor de contraseñas y **no pegarla
 en chats ni en el repo**.
 
 **Publicar la imagen (paso 4)** — dos caminos:
-1. `az acr build -r $ACR -t toxicity-service:$VER -f Dockerfile.azure .` (compila en Azure). **Puede estar bloqueado en suscripciones de
-   estudiante** (ACR Tasks); no verificado.
-2. Alternativa: `docker build -f Dockerfile.azure -t $ACR.azurecr.io/toxicity-service:$VER .` en el equipo local (linux/amd64), iniciar
+1. `az acr build ...`: **no funciona en `chilecentral`** (verificado: el servicio de subida de contexto no existe en esa región).
+2. **Camino usado:** `docker build -f Dockerfile.azure -t $ACR.azurecr.io/toxicity-service:$VER .` en el equipo local (linux/amd64), iniciar
    sesión en el registro y `docker push`. Requiere credenciales del registro (p. ej. habilitar temporalmente el usuario admin y
    deshabilitarlo después). Documentar y revertir cualquier cambio.
 
