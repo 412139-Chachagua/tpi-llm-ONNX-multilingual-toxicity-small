@@ -1,0 +1,21 @@
+server:
+  port: ${PORT:8080}
+  tomcat:
+    max-http-form-post-size: 64KB
+spring:
+  application:
+    name: toxicity-inference-service
+  servlet:
+    multipart:
+      enabled: false
+
+toxicity:
+  # Rutas a los artefactos del modelo (se fijan en la Fase 2).
+  model-path: ${TOXICITY_MODEL_PATH:models/model.onnx}
+  tokenizer-path: ${TOXICITY_TOKENIZER_PATH:models/tokenizer.json}
+  # Límites provisionales; se ajustan con mediciones en las fases 3 y 5.
+  max-chars: ${TOXICITY_MAX_CHARS:5000}
+  max-concurrent-inferences: ${TOXICITY_MAX_CONCURRENT:4}
+  inference-timeout: ${TOXICITY_INFERENCE_TIMEOUT:10s}
+  # Sin valor por defecto: el secreto solo viene del entorno.
+  api-key: ${TOXICITY_API_KEY:}

@@ -1,0 +1,7 @@
+target/
+.idea/
+*.iml
+.DS_Store
+# Artefactos del modelo: se obtienen con el procedimiento documentado, no se versionan
+models/
+.env
