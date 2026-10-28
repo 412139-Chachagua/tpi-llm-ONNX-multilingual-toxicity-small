@@ -17,5 +17,6 @@ public record ToxicityProperties(
         int maxChars,
         int maxConcurrentInferences,
         Duration inferenceTimeout,
-        String apiKey) {
+        String apiKey,
+        boolean authDisabled) {
 }

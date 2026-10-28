@@ -10,7 +10,14 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +45,7 @@ class OnnxToxicityModelRealTest {
     static void load() {
         model = new OnnxToxicityModel(MODEL, TOKENIZER, 256);
         service = new ToxicityInferenceService(model,
-                new ToxicityProperties(MODEL, TOKENIZER, 256, 5000, 2, Duration.ofSeconds(30), ""));
+                new ToxicityProperties(MODEL, TOKENIZER, 256, 5000, 2, Duration.ofSeconds(30), "", false));
     }
 
     @AfterAll
@@ -82,6 +89,47 @@ class OnnxToxicityModelRealTest {
     @Test
     void inferenceIsDeterministic() {
         assertThat(service.classify("This is a test.")).isEqualTo(service.classify("This is a test."));
+    }
+
+    /** Textos fijos en src/test/resources/reference-scores.json; detecta cambios accidentales de modelo/tokenizer/preproceso. */
+    @Test
+    void scoresMatchRegressionBaseline() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path file = Path.of("src/test/resources/reference-scores.json");
+        List<String> texts = List.of("Thanks for sharing, this was really helpful!",
+                "You are a complete idiot and nobody wants you here.", "Eres un inútil, lárgate de aquí.",
+                "Halt die Klappe, du Vollidiot.", "I will find you and hurt you.", "¡Qué día tan hermoso! 😀🎉", "ok");
+        if (Boolean.getBoolean("update.reference")) {
+            Map<String, Map<String, Double>> out = new LinkedHashMap<>();
+            for (String t : texts) {
+                Map<String, Double> m = new LinkedHashMap<>();
+                service.classify(t).forEach((k, v) -> m.put(k.label(), v));
+                out.put(t, m);
+            }
+            mapper.writerWithDefaultPrettyPrinter().writeValue(file.toFile(), out);
+        }
+        Map<String, Map<String, Double>> expected = mapper.readValue(file.toFile(),
+                new com.fasterxml.jackson.core.type.TypeReference<>() { });
+        assertThat(expected.keySet()).containsExactlyElementsOf(texts);
+        expected.forEach((text, exp) -> service.classify(text).forEach(
+                (cat, v) -> assertThat(v).as(text + " / " + cat.label()).isCloseTo(exp.get(cat.label()), org.assertj.core.data.Offset.offset(1e-4))));
+    }
+
+    @Test
+    void concurrentRequestsAllReturnValidScores() throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(16);
+        try {
+            List<Future<Map<ToxicityCategory, Double>>> futures = new ArrayList<>();
+            for (int i = 0; i < 48; i++) {
+                String t = "Concurrent request number " + i;
+                futures.add(pool.submit(() -> service.classify(t)));
+            }
+            for (Future<Map<ToxicityCategory, Double>> f : futures) {
+                assertValid(f.get());
+            }
+        } finally {
+            pool.shutdownNow();
+        }
     }
 
     private static void assertValid(Map<ToxicityCategory, Double> scores) {

@@ -16,7 +16,8 @@ import java.nio.file.Path;
 /** Arranque completo de la aplicación con el modelo real y petición HTTP real. */
 @DisabledOnOs(value = OS.MAC, architectures = "x86_64")
 @EnabledIf("artifactsPresent")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "toxicity.api-key=real-test-key")
 class ToxicityApplicationRealTest {
 
     @LocalServerPort
@@ -30,7 +31,7 @@ class ToxicityApplicationRealTest {
     @Test
     void realRequestReturnsSevenValidScores() {
         WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build()
-                .post().uri("/api/v1/toxicity/classify").contentType(MediaType.APPLICATION_JSON)
+                .post().uri("/api/v1/toxicity/classify").contentType(MediaType.APPLICATION_JSON).header("X-API-Key", "real-test-key")
                 .bodyValue("{\"text\":\"You are a complete idiot\"}")
                 .exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$.scores.length()").isEqualTo(7)

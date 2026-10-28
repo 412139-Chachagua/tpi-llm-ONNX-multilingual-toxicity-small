@@ -20,3 +20,5 @@ toxicity:
   inference-timeout: ${TOXICITY_INFERENCE_TIMEOUT:10s}
   # Sin valor por defecto: el secreto solo viene del entorno.
   api-key: ${TOXICITY_API_KEY:}
+  # Solo para desarrollo local: sin API key el servicio NO arranca salvo que esto sea true.
+  auth-disabled: ${TOXICITY_AUTH_DISABLED:false}

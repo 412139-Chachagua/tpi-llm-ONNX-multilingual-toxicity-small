@@ -35,4 +35,14 @@ Formato de error: `{"error":"<código>","message":"<descripción genérica>"}`.
 200 `{"status":"UP"}` cuando el modelo está cargado; 503 `{"status":"DOWN"}` en caso contrario.
 Si el modelo no puede cargarse, la aplicación no arranca (no llega a atender peticiones).
 
-> Autenticación por API key: se añade en la Fase 5 (hoy el endpoint no la exige).
+## Autenticación y límites
+- `/api/**` exige la cabecera `X-API-Key` con el valor de `TOXICITY_API_KEY` (comparación en tiempo constante). Sin ella: 401
+  `{"error":"unauthorized",...}`. `/health/*` no requiere clave.
+- Sin `TOXICITY_API_KEY` la aplicación **no arranca**, salvo `TOXICITY_AUTH_DISABLED=true` (solo desarrollo local).
+- Cuerpo máximo: `TOXICITY_MAX_CHARS × 6 + 1024` bytes (peor caso JSON escapado); más → 413 (por `Content-Length`) o lectura abortada
+  (cuerpos chunked).
+- Concurrencia: máximo `TOXICITY_MAX_CONCURRENT` inferencias simultáneas; una petición espera hasta `TOXICITY_INFERENCE_TIMEOUT`
+  por capacidad y, si no la obtiene, recibe 503 `service_busy`.
+- Limitación conocida: ese timeout cubre la espera por capacidad, **no** interrumpe una inferencia ya iniciada (una inferencia de
+  ≤256 tokens dura milisegundos a decenas de ms en CPU; se medirá en la Fase 6).
+- El texto analizado, la API key y las cabeceras no se registran (cubierto por test).

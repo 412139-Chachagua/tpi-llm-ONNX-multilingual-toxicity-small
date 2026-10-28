@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Contrato HTTP; el servicio de inferencia está simulado (la inferencia real se prueba aparte). */
 @WebMvcTest({ToxicityController.class, HealthController.class})
+@TestPropertySource(properties = "toxicity.auth-disabled=true")
 @EnableConfigurationProperties(ToxicityProperties.class)
 class ToxicityApiTest {
 

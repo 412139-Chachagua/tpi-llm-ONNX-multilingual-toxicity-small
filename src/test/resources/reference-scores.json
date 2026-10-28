@@ -1,0 +1,65 @@
+{
+  "Thanks for sharing, this was really helpful!" : {
+    "toxicity" : 0.004723074071718391,
+    "severe_toxicity" : 3.7654957533771345E-4,
+    "obscene" : 9.2173129671724E-4,
+    "threat" : 0.0012063455095762201,
+    "insult" : 0.0016852995542662496,
+    "identity_attack" : 5.493053354330737E-4,
+    "sexual_explicit" : 0.001190329433375513
+  },
+  "You are a complete idiot and nobody wants you here." : {
+    "toxicity" : 0.92412483678102,
+    "severe_toxicity" : 0.04530826603040502,
+    "obscene" : 0.17383234816917803,
+    "threat" : 0.00435322721636425,
+    "insult" : 0.919593271830633,
+    "identity_attack" : 0.016118981581056596,
+    "sexual_explicit" : 0.0026254172591921696
+  },
+  "Eres un inútil, lárgate de aquí." : {
+    "toxicity" : 0.7583628600632627,
+    "severe_toxicity" : 0.02551503839746374,
+    "obscene" : 0.0460960718911503,
+    "threat" : 0.017476407008268705,
+    "insult" : 0.7372134543389096,
+    "identity_attack" : 0.011810359818810554,
+    "sexual_explicit" : 0.005726476917095203
+  },
+  "Halt die Klappe, du Vollidiot." : {
+    "toxicity" : 0.4693962487014675,
+    "severe_toxicity" : 0.020965043363828234,
+    "obscene" : 0.11927330611876516,
+    "threat" : 0.01136110888909102,
+    "insult" : 0.40406699261484913,
+    "identity_attack" : 0.024101648871409802,
+    "sexual_explicit" : 0.05903159596167282
+  },
+  "I will find you and hurt you." : {
+    "toxicity" : 0.6118717141821205,
+    "severe_toxicity" : 0.06452439450226843,
+    "obscene" : 0.006847489535661505,
+    "threat" : 0.5855065316602557,
+    "insult" : 0.04697688260664062,
+    "identity_attack" : 0.00527520011342187,
+    "sexual_explicit" : 0.006014783468540992
+  },
+  "¡Qué día tan hermoso! \uD83D\uDE00\uD83C\uDF89" : {
+    "toxicity" : 0.005607648104137601,
+    "severe_toxicity" : 6.525288294808292E-4,
+    "obscene" : 0.0021325244767143097,
+    "threat" : 7.551925821988901E-4,
+    "insult" : 0.0021522698431907573,
+    "identity_attack" : 6.9567550557088E-4,
+    "sexual_explicit" : 0.0018549769064340961
+  },
+  "ok" : {
+    "toxicity" : 0.00291847109497694,
+    "severe_toxicity" : 8.955546250935656E-4,
+    "obscene" : 0.001574751694817513,
+    "threat" : 0.0027461734763703613,
+    "insult" : 0.0013542307084649333,
+    "identity_attack" : 0.0011576760051179229,
+    "sexual_explicit" : 0.005684507967603827
+  }
+}

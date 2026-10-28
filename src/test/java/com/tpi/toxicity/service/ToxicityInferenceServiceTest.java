@@ -52,8 +52,29 @@ class ToxicityInferenceServiceTest {
         assertThatThrownBy(() -> service(model).classify("x")).isInstanceOf(InferenceException.class);
     }
 
+    @Test
+    void saturationFailsFastWithoutBlockingForever() throws Exception {
+        OnnxToxicityModel slow = mock(OnnxToxicityModel.class);
+        java.util.concurrent.CountDownLatch started = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        when(slow.logits("slow")).thenAnswer(inv -> {
+            started.countDown();
+            release.await();
+            return new float[7];
+        });
+        ToxicityInferenceService single = new ToxicityInferenceService(slow,
+                new ToxicityProperties(null, null, 256, 5000, 1, Duration.ofMillis(100), "", false));
+        Thread t = new Thread(() -> single.classify("slow"));
+        t.start();
+        started.await();
+        assertThatThrownBy(() -> single.classify("other"))
+                .isInstanceOf(com.tpi.toxicity.model.ServiceSaturatedException.class);
+        release.countDown();
+        t.join();
+    }
+
     private static ToxicityInferenceService service(OnnxToxicityModel model) {
         return new ToxicityInferenceService(model,
-                new ToxicityProperties(null, null, 256, 5000, 2, Duration.ofSeconds(1), ""));
+                new ToxicityProperties(null, null, 256, 5000, 2, Duration.ofSeconds(1), "", false));
     }
 }

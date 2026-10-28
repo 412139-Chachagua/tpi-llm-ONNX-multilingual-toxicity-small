@@ -4,7 +4,7 @@ Mini servicio independiente de inferencia de toxicidad: ejecuta el modelo
 `Horizon-Labs/multilingual-toxicity-small` con ONNX Runtime desde Java/Spring Boot.
 No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuaciones.
 
-> Estado: Fases 1–4 (proyecto, modelo, inferencia real y API REST). Contrato en [docs/api.md](docs/api.md).
+> Estado: Fases 1–5 (proyecto, modelo, inferencia real, API REST, seguridad y pruebas). Contrato en [docs/api.md](docs/api.md).
 
 ## Requisitos
 - JDK 21
@@ -14,7 +14,7 @@ No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuacione
 ## Comandos
 ```bash
 mvn verify                      # compila y ejecuta los tests
-mvn spring-boot:run             # arranca en el puerto 8080
+TOXICITY_API_KEY=cambia-esto mvn spring-boot:run   # puerto 8080 (requiere los artefactos de models/)
 ```
 
 ### Tests con el modelo real
@@ -34,7 +34,14 @@ docker run --rm -v "$PWD":/app -v toxicity-m2:/root/.m2 -w /app maven:3.9-eclips
 | `TOXICITY_MAX_CHARS` | `5000` | Máximo de caracteres (provisional) |
 | `TOXICITY_MAX_CONCURRENT` | `4` | Inferencias simultáneas (provisional) |
 | `TOXICITY_INFERENCE_TIMEOUT` | `10s` | Timeout de inferencia (provisional) |
-| `TOXICITY_API_KEY` | vacío | API key del endpoint de clasificación; nunca se versiona |
+| `TOXICITY_API_KEY` | — (obligatoria) | API key (cabecera `X-API-Key`); nunca se versiona. Sin ella la app no arranca |
+| `TOXICITY_AUTH_DISABLED` | `false` | `true` solo en desarrollo local para omitir la API key |
 
 ## Estructura
 `api` (controladores), `service` (inferencia), `model` (configuración y carga del modelo), `dto`.
+
+## Tests
+- Unitarios y de API (sin modelo): `mvn verify`.
+- Con modelo real (arranque completo, línea base de regresión, concurrencia): ver sección anterior. La línea base
+  `src/test/resources/reference-scores.json` es una **línea de regresión generada con este mismo modelo**, no una referencia
+  independiente (p. ej. PyTorch); se regenera con `-Dupdate.reference=true`.

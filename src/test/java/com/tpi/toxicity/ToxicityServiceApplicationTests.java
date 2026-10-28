@@ -9,7 +9,7 @@ import com.tpi.toxicity.model.OnnxToxicityModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(properties = "toxicity.auth-disabled=true")
 class ToxicityServiceApplicationTests {
 
     @MockitoBean
