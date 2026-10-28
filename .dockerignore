@@ -1,0 +1,6 @@
+target/
+models/
+.git/
+.idea/
+docs/
+*.md
