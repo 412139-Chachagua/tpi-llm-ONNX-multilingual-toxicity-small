@@ -13,6 +13,7 @@ import java.time.Duration;
 public record ToxicityProperties(
         Path modelPath,
         Path tokenizerPath,
+        int maxTokens,
         int maxChars,
         int maxConcurrentInferences,
         Duration inferenceTimeout,

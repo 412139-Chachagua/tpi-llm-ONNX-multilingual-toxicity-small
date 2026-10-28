@@ -10,8 +10,9 @@ spring:
       enabled: false
 
 toxicity:
-  # Rutas a los artefactos del modelo (se fijan en la Fase 2).
-  model-path: ${TOXICITY_MODEL_PATH:models/model.onnx}
+  # Rutas a los artefactos del modelo (ver docs/model.md).
+  max-tokens: ${TOXICITY_MAX_TOKENS:256}
+  model-path: ${TOXICITY_MODEL_PATH:models/onnx/model.onnx}
   tokenizer-path: ${TOXICITY_TOKENIZER_PATH:models/tokenizer.json}
   # Límites provisionales; se ajustan con mediciones en las fases 3 y 5.
   max-chars: ${TOXICITY_MAX_CHARS:5000}

@@ -46,3 +46,10 @@ El grafo exportado (`code/train/export_onnx.py`) devuelve `.logits` crudos, y el
 - ORT Java **1.31.1 no incluye librería nativa para macOS Intel (osx-x64)**; la última versión con ese nativo es **1.23.0**
   (1.24.0 no existe en Maven Central). 1.23.0 sí soporta linux-x64, linux-aarch64, osx-aarch64 y win-x64.
 - Se fija 1.23.0 en el `pom.xml`: carga el modelo e inspecciona los tensores correctamente en este equipo.
+
+## Dependencias de inferencia (Fase 3)
+- `ai.djl.huggingface:tokenizers` 0.39.0 (Apache-2.0): tokeniza con `tokenizer.json`. Trae nativos para linux-x86_64,
+  linux-aarch64, osx-aarch64 y win-x86_64. **Ninguna versión (0.30–0.39) incluye macOS Intel**, por lo que los tests con
+  el modelo real se ejecutan en contenedor Linux en ese equipo (comando en el README).
+- Verificado en contenedor `maven:3.9-eclipse-temurin-21` (linux-x86_64): carga del modelo fp32, truncamiento a 256 tokens,
+  BOS/EOS, siete categorías en [0,1], determinismo, textos en varios idiomas/emojis; ofensivo > benigno en `toxicity` e `insult`.
