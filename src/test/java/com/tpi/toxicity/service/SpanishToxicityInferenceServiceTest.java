@@ -95,7 +95,7 @@ class SpanishToxicityInferenceServiceTest {
     }
 
     private static SpanishToxicityInferenceService service(SpanishOnnxModel model, int permits) {
-        var props = new SpanishToxicityProperties(null, null, null, "rev", 256, permits);
+        var props = new SpanishToxicityProperties(null, null, null, "rev", 256, permits, 0);
         var general = new ToxicityProperties(null, null, 256, 5000, 4, Duration.ofMillis(50), "", true);
         return new SpanishToxicityInferenceService(model, props, general);
     }

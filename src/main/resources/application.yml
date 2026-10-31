@@ -29,3 +29,5 @@ toxicity:
     revision: fe9d55ff4c871f314b4c8a9878468cd49e36697a
     max-tokens: ${TOXICITY_SPANISH_MAX_TOKENS:256}
     max-concurrent-inferences: ${TOXICITY_SPANISH_MAX_CONCURRENT:2}
+    # 0 = hilos de ONNX Runtime igual a las CPUs que ve la JVM (respeta el límite de vCPU del contenedor).
+    intra-op-threads: ${TOXICITY_SPANISH_INTRA_OP_THREADS:0}

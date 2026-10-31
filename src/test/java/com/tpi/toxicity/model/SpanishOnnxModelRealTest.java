@@ -38,7 +38,7 @@ class SpanishOnnxModelRealTest {
     static void load() {
         model = new SpanishOnnxModel(DIR.resolve("model.onnx"), DIR.resolve("tokenizer.json"), DIR.resolve("config.json"), 256);
         service = new SpanishToxicityInferenceService(model,
-                new SpanishToxicityProperties(null, null, null, "rev", 256, 2),
+                new SpanishToxicityProperties(null, null, null, "rev", 256, 2, 0),
                 new ToxicityProperties(null, null, 256, 5000, 4, Duration.ofSeconds(30), "", true));
     }
 

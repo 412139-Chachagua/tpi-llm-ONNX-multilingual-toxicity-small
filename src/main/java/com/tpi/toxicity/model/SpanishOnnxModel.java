@@ -40,10 +40,14 @@ public class SpanishOnnxModel implements DisposableBean {
 
     @Autowired
     public SpanishOnnxModel(SpanishToxicityProperties props) {
-        this(props.modelPath(), props.tokenizerPath(), props.configPath(), props.maxTokens());
+        this(props.modelPath(), props.tokenizerPath(), props.configPath(), props.maxTokens(), props.intraOpThreads());
     }
 
     public SpanishOnnxModel(Path modelPath, Path tokenizerPath, Path configPath, int maxTokens) {
+        this(modelPath, tokenizerPath, configPath, maxTokens, 0);
+    }
+
+    public SpanishOnnxModel(Path modelPath, Path tokenizerPath, Path configPath, int maxTokens, int intraOpThreads) {
         requireReadable(modelPath, "modelo ONNX español");
         requireReadable(tokenizerPath, "tokenizer español");
         requireReadable(configPath, "configuración del modelo español");
@@ -59,7 +63,11 @@ public class SpanishOnnxModel implements DisposableBean {
                     .optAddSpecialTokens(true)
                     .build();
             this.env = OrtEnvironment.getEnvironment();
-            sess = env.createSession(modelPath.toString(), new OrtSession.SessionOptions());
+            // Por defecto ONNX Runtime usa los núcleos de la máquina; en un contenedor con cuota de vCPU eso genera
+            // más hilos que CPU disponibles. Runtime.availableProcessors() respeta el límite del contenedor.
+            OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+            opts.setIntraOpNumThreads(intraOpThreads > 0 ? intraOpThreads : Runtime.getRuntime().availableProcessors());
+            sess = env.createSession(modelPath.toString(), opts);
             validateInterface(sess, labels.size());
         } catch (IOException | OrtException | RuntimeException e) {
             closeQuietly(sess);
@@ -70,6 +78,12 @@ public class SpanishOnnxModel implements DisposableBean {
         }
         this.session = sess;
         this.tokenizer = tok;
+        try {
+            logits("Hola, esto es una prueba de arranque.");
+        } catch (RuntimeException e) {
+            destroyQuietly();
+            throw new ModelUnavailableException("El modelo español no superó la inferencia de arranque", e);
+        }
         this.ready = true;
     }
 
@@ -133,6 +147,11 @@ public class SpanishOnnxModel implements DisposableBean {
                 // nada que hacer durante la limpieza
             }
         }
+    }
+
+    private void destroyQuietly() {
+        closeQuietly(session);
+        tokenizer.close();
     }
 
     @Override

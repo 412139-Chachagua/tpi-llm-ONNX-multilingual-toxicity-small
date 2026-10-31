@@ -33,6 +33,12 @@ Programa de prueba (ONNX Runtime + DJL, sin Spring) en contenedor de 1 vCPU / 2 
 modelo original, ≈ 1525 MB con ambos, ≈ 1547 MB tras 20 pasadas. La aplicación Spring suma overhead propio: **margen estrecho dentro de 2 GiB**;
 confirmar con la app real en Azure antes de desplegar. Latencia con 1 vCPU, 256 tokens: ~5 s (original) y ~7 s (español) en una corrida en frío de Docker en Mac.
 
+## Rendimiento en CPU limitada
+`SpanishOnnxModel` fija los hilos de ONNX Runtime a `Runtime.availableProcessors()` (la JVM respeta el límite de vCPU del contenedor;
+configurable con `TOXICITY_SPANISH_INTRA_OP_THREADS`) y hace una inferencia de arranque (calentamiento y verificación). Medición en
+contenedor con `--cpus=1`, mismo texto corto (11 tokens), 5 requests: antes 1,5–1,8 s; después 0,08–0,10 s (0,36 s la primera).
+Una sola máquina (Mac Intel con Docker), no Azure: confirmar allí.
+
 ## Despliegue
 La imagen `Dockerfile.azure` actual solo empaqueta el modelo original: para desplegar esta rama hay que incluir `models/spanish/` en la imagen
 (o montarlo) y fijar las variables anteriores; sin ellos la aplicación no arrancará. No se modificó nada de Azure en esta tarea.
