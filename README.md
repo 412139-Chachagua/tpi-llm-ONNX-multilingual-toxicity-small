@@ -9,6 +9,9 @@ No decide bloqueos ni se integra con el TPI principal; solo devuelve puntuacione
 ## Modelo
 `scripts/download-model.sh` descarga y verifica los artefactos en `models/` (detalles en [docs/model.md](docs/model.md)).
 
+Segundo clasificador independiente (`bgonzalezbustamante/bert-spanish-toxicity`, `POST /api/v1/toxicity/spanish/classify`):
+`scripts/export-spanish-model.sh` y [docs/model-spanish.md](docs/model-spanish.md).
+
 ## Requisitos
 - JDK 21
 - Maven 3.9+

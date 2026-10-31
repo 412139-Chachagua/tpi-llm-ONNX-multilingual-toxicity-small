@@ -25,7 +25,10 @@ class ToxicityApplicationRealTest {
 
     static boolean artifactsPresent() {
         return Files.isRegularFile(Path.of("models/onnx/model.onnx"))
-                && Files.isRegularFile(Path.of("models/tokenizer.json"));
+                && Files.isRegularFile(Path.of("models/tokenizer.json"))
+                && Files.isRegularFile(Path.of("models/spanish/model.onnx"))
+                && Files.isRegularFile(Path.of("models/spanish/tokenizer.json"))
+                && Files.isRegularFile(Path.of("models/spanish/config.json"));
     }
 
     @Test
@@ -36,5 +39,17 @@ class ToxicityApplicationRealTest {
                 .exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$.scores.length()").isEqualTo(7)
                 .jsonPath("$.scores.toxicity").isNumber();
+    }
+
+    @Test
+    void realSpanishRequestReturnsLabelAndSoftmaxScores() {
+        WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build()
+                .post().uri("/api/v1/toxicity/spanish/classify").contentType(MediaType.APPLICATION_JSON).header("X-API-Key", "real-test-key")
+                .bodyValue("{\"text\":\"Sos un inútil, no servís para nada\"}")
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.model").isEqualTo("bert-spanish-toxicity")
+                .jsonPath("$.label").isEqualTo("TOXIC")
+                .jsonPath("$.scores.length()").isEqualTo(2)
+                .jsonPath("$.scores.TOXIC").isNumber();
     }
 }

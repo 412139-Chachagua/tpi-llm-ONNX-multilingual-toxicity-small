@@ -1,0 +1,61 @@
+id,label,grupo,text
+1,1,insulto_lunfardo,Sos un pelotudo bárbaro
+2,1,insulto_lunfardo,Qué forro que sos
+3,1,insulto_lunfardo,Andá a cagar garca de mierda
+4,1,insulto_lunfardo,Sos un boludo y no entendés nada
+5,1,insulto_lunfardo,Este chabón es un tremendo gil
+6,1,insulto_lunfardo,Callate la boca pelotudo
+7,1,insulto_lunfardo,Sos un mogólico
+8,1,insulto_lunfardo,La concha de tu madre
+9,1,insulto_lunfardo,Sos una mina re trola
+10,1,insulto_lunfardo,Andate a la mierda forro
+11,1,insulto_lunfardo,Qué cagón que sos
+12,1,insulto_lunfardo,Sos un pajero de cuarta
+13,1,insulto_lunfardo,Sos más tarado que una puerta
+14,1,insulto_lunfardo,Hijo de puta te voy a cagar a trompadas
+15,1,insulto_lunfardo,Sos un mamerto inservible
+16,1,insulto_lunfardo,Sos un rata garca
+17,1,insulto_lunfardo,Sos un salame bárbaro sos un inútil
+18,1,insulto_lunfardo,No servís para nada pedazo de boludo
+19,1,insulto_lunfardo,Qué pelotuda que es esa mina
+20,1,insulto_lunfardo,Sos un tarado de mierda
+21,1,amenaza,Te voy a buscar y te rompo la cara
+22,1,amenaza,Cuidate porque sé dónde vivís
+23,1,amenaza,Te voy a hacer mierda cuando te vea
+24,1,amenaza,Si te veo te cago a palos
+25,1,discriminacion,Negro de mierda volvé a tu villa
+26,1,discriminacion,Bolita de mierda andate de este país
+27,1,discriminacion,Los paraguas son todos unos vagos de mierda
+28,1,discriminacion,Puto de mierda
+29,1,insulto_general,Sos un inútil no servís para nada
+30,1,insulto_general,Sos un idiota
+31,0,uso_amistoso,Che boludo ¿venís esta noche?
+32,0,uso_amistoso,Boludo qué golazo hizo
+33,0,uso_amistoso,Jaja sos un boludo te quiero amigo
+34,0,uso_amistoso,Che chabón pasame el mate
+35,0,uso_amistoso,Qué hacés boludo tanto tiempo
+36,0,uso_amistoso,Boluda me muero de risa con lo que contaste
+37,0,uso_amistoso,Ese tema está re zarpado
+38,0,uso_amistoso,Este laburo me tiene re quemado
+39,0,uso_amistoso,No tengo un mango hasta fin de mes
+40,0,uso_amistoso,Qué quilombo hay en el centro hoy
+41,0,neutral_voseo,¿Vos querés que vayamos al cine mañana?
+42,0,neutral_voseo,Tenés razón mañana lo hablamos
+43,0,neutral_voseo,Decime a qué hora salís del laburo
+44,0,neutral_voseo,Che ¿sabés si abre el súper el domingo?
+45,0,neutral_voseo,Andá tranqui que yo cierro
+46,0,neutral_voseo,Posta que la pizza de acá es buenísima
+47,0,neutral_voseo,Gracias por bancarme en todo
+48,0,neutral_voseo,Mañana hay asado en lo de mi viejo
+49,0,neutral_voseo,Sos un genio me salvaste el día
+50,0,neutral_voseo,Qué lindo día para tomar unos mates en la plaza
+51,0,critica_no_toxica,El partido de ayer fue un desastre
+52,0,critica_no_toxica,No estoy de acuerdo con lo que decís
+53,0,critica_no_toxica,El gobierno está haciendo todo mal
+54,0,critica_no_toxica,Este servicio es lentísimo y caro
+55,0,critica_no_toxica,Me parece que te equivocaste con ese dato
+56,0,critica_no_toxica,El árbitro fue malísimo
+57,0,critica_no_toxica,La película es aburridísima
+58,0,critica_no_toxica,Qué bronca me da el tránsito
+59,0,critica_no_toxica,Ese pibe juega muy mal al fútbol
+60,0,critica_no_toxica,Odio los lunes
