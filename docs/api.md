@@ -28,12 +28,30 @@ Respuesta real (200), probabilidades por categoría en [0, 1] (sigmoide sobre lo
 
 Formato de error: `{"error":"<código>","message":"<descripción genérica>"}`.
 
+## `POST /api/v1/toxicity/spanish/classify`
+Segundo clasificador, **independiente** del anterior: usa exclusivamente `bgonzalezbustamante/bert-spanish-toxicity`
+(ver [model-spanish.md](model-spanish.md)). Misma autenticación (`X-API-Key`), mismo request y mismos errores que `/classify`.
+
+```bash
+curl -s -X POST http://localhost:8080/api/v1/toxicity/spanish/classify \
+  -H 'Content-Type: application/json' -H "X-API-Key: $TOXICITY_API_KEY" \
+  -d '{"text":"Sos un inútil, no servís para nada"}'
+```
+```json
+{"model":"bert-spanish-toxicity","revision":"fe9d55ff4c871f314b4c8a9878468cd49e36697a","label":"TOXIC","scores":{"NONTOXIC":0.19,"TOXIC":0.81}}
+```
+- `scores`: **softmax** de los 2 logits del modelo (clase única; suman 1). Son las probabilidades del modelo, **no calibradas**.
+- `label`: la clase con mayor probabilidad (`TOXIC` o `NONTOXIC`); el orden de clases se lee de `id2label` del modelo.
+- Respuesta distinta a la del endpoint original (7 categorías con sigmoide): no se combinan ni se comparan automáticamente.
+- Errores: 400 `invalid_request` (texto ausente, vacío, no string o JSON inválido), 413 `text_too_long`, 401, 415, 405,
+  500 `inference_failed`, 503 `service_busy`. Texto máximo: el mismo `TOXICITY_MAX_CHARS`.
+
 ## `GET /health/live`
 200 `{"status":"UP"}` si el proceso responde.
 
 ## `GET /health/ready`
 200 `{"status":"UP"}` cuando el modelo está cargado; 503 `{"status":"DOWN"}` en caso contrario.
-Si el modelo no puede cargarse, la aplicación no arranca (no llega a atender peticiones).
+Si alguno de los dos modelos no puede cargarse, la aplicación no arranca (no llega a atender peticiones); por eso `/health/ready` cubre ambos.
 
 ## Autenticación y límites
 - `/api/**` exige la cabecera `X-API-Key` con el valor de `TOXICITY_API_KEY` (comparación en tiempo constante). Sin ella: 401

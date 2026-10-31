@@ -1,0 +1,87 @@
+{
+  "info": {
+    "name": "Evaluación rioplatense (ambos modelos)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "small",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const j=pm.response.json();",
+              "const v=j.scores?Object.values(j.scores):[];console.log('E|'+pm.iterationData.get('id')+'|s|'+(v.length?Math.max(...v).toFixed(4)+'|'+j.scores.toxicity.toFixed(4):'NA'));",
+              "pm.test('200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": {{textJson}} }"
+        },
+        "url": "{{baseUrl}}/api/v1/toxicity/classify"
+      }
+    },
+    {
+      "name": "es",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const j=pm.response.json();",
+              "console.log('E|'+pm.iterationData.get('id')+'|e|'+(j.scores?j.scores.TOXIC.toFixed(4):'NA'));",
+              "pm.test('200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": {{textJson}} }"
+        },
+        "url": "{{baseUrl}}/api/v1/toxicity/spanish/classify"
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('textJson', JSON.stringify(pm.iterationData.get('text')));"
+        ]
+      }
+    }
+  ]
+}

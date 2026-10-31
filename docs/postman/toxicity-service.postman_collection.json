@@ -838,6 +838,109 @@
           }
         }
       ]
+    },
+    {
+      "name": "Español (bert-spanish-toxicity)",
+      "item": [
+        {
+          "name": "Texto tóxico (ES)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"bert-spanish-toxicity\"));",
+                  "pm.test(\"scores NONTOXIC/TOXIC suman 1\", () => { pm.expect(Object.keys(j.scores)).to.have.members([\"NONTOXIC\", \"TOXIC\"]); pm.expect(j.scores.NONTOXIC + j.scores.TOXIC).to.be.closeTo(1, 1e-6); });",
+                  "pm.test(\"label TOXIC\", () => pm.expect(j.label).to.eql(\"TOXIC\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\": \"Sos un inútil, no servís para nada\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/spanish/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "spanish",
+                "classify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Texto no tóxico (ES)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"sin trazas ni rutas\", () => pm.expect(pm.response.text()).to.not.match(/Exception|at com\\.|\\/Users\\/|\\/app\\//));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"modelo\", () => pm.expect(j.model).to.eql(\"bert-spanish-toxicity\"));",
+                  "pm.test(\"scores NONTOXIC/TOXIC suman 1\", () => { pm.expect(Object.keys(j.scores)).to.have.members([\"NONTOXIC\", \"TOXIC\"]); pm.expect(j.scores.NONTOXIC + j.scores.TOXIC).to.be.closeTo(1, 1e-6); });",
+                  "pm.test(\"label NONTOXIC\", () => pm.expect(j.label).to.eql(\"NONTOXIC\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\": \"Gracias por tu ayuda, que tengas un lindo día\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/toxicity/spanish/classify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "toxicity",
+                "spanish",
+                "classify"
+              ]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": []
