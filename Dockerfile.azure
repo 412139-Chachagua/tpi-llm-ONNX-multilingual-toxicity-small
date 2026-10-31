@@ -1,7 +1,9 @@
 # Variante autocontenida para Azure Container Apps: el modelo va DENTRO de la imagen.
 # Se descarga en el build con scripts/download-model.sh, que fija la revisión de Hugging Face
 # y verifica el SHA-256 (si no coincide, el build falla). No incluye secretos.
-# Construir:  docker build -f Dockerfile.azure -t toxicity-service:azure .
+# El modelo español (bgonzalezbustamante/bert-spanish-toxicity) no se descarga en el build: el repo del modelo no publica ONNX.
+# Se genera antes con scripts/export-spanish-model.sh (deja models/spanish/) y se pasa como contexto con nombre.
+# Construir:  docker build -f Dockerfile.azure --build-context spanish=models/spanish -t toxicity-service:azure .
 
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
@@ -19,11 +21,15 @@ RUN useradd --system --uid 10001 --no-create-home app
 WORKDIR /app
 # El modelo cambia poco: va en una capa propia antes del jar para reutilizar caché y acelerar los push.
 COPY --from=model /models /models
+COPY --from=spanish . /models/spanish
 COPY --from=build /build/target/toxicity-inference-service-*.jar app.jar
 
 # TOXICITY_API_KEY debe pasarse en tiempo de ejecución (secreto de Container Apps).
 ENV TOXICITY_MODEL_PATH=/models/onnx/model.onnx \
     TOXICITY_TOKENIZER_PATH=/models/tokenizer.json \
+    TOXICITY_SPANISH_MODEL_PATH=/models/spanish/model.onnx \
+    TOXICITY_SPANISH_TOKENIZER_PATH=/models/spanish/tokenizer.json \
+    TOXICITY_SPANISH_CONFIG_PATH=/models/spanish/config.json \
     JAVA_OPTS="-XX:MaxRAMPercentage=70"
 USER 10001
 EXPOSE 8080
